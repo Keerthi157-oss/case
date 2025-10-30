@@ -1,0 +1,18 @@
+<!DOCTYPE html>
+<html>
+<head><title>Student Records</title></head>
+<body>
+  <h1>Student Record Management</h1>
+  <form action="/add" method="POST">
+    <input type="text" name="name" placeholder="Name" required>
+    <input type="text" name="grade" placeholder="Grade" required>
+    <button type="submit">Add Student</button>
+  </form>
+  <ul>
+    {% for s in students %}
+      <li>{{ s.name }} - {{ s.grade }}</li>
+    {% endfor %}
+  </ul>
+  <a href="/about">About</a>
+</body>
+</html>
