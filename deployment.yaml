@@ -14,6 +14,7 @@ spec:
     spec:
       containers:
         - name: student-app
-          image: <dockerhub-username>/student-app:latest
+          image: jampallykeerthi/student-app:latest
           ports:
             - containerPort: 5000
+
