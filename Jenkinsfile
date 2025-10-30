@@ -2,21 +2,25 @@ pipeline {
     agent any
 
     environment {
-        DOCKERHUB_CREDENTIALS = credentials('dockerhub-cred')
-        DOCKER_IMAGE = "your-dockerhub-username/student-app"
+        DOCKER_USER = 'Keerthi'
+        DOCKER_PASS = 'Keerthi@88'
+        DOCKER_IMAGE = 'keerthi/student-app'
     }
 
     stages {
         stage('Checkout') {
             steps {
-                git branch: 'main', url: 'https://github.com/your-username/flask-cicd-demo.git'
+                git branch: 'main', url: 'https://github.com/Keerthi157-oss/case.git'
             }
         }
 
         stage('Build Docker Image') {
             steps {
                 script {
-                    docker.build("${DOCKER_IMAGE}:${BUILD_NUMBER}")
+                    // Using shell commands instead of docker.build()
+                    sh """
+                    docker build -t ${DOCKER_IMAGE}:${BUILD_NUMBER} .
+                    """
                 }
             }
         }
@@ -24,20 +28,23 @@ pipeline {
         stage('Push to Docker Hub') {
             steps {
                 script {
-                    docker.withRegistry('', DOCKERHUB_CREDENTIALS) {
-                        docker.image("${DOCKER_IMAGE}:${BUILD_NUMBER}").push()
-                        docker.image("${DOCKER_IMAGE}:${BUILD_NUMBER}").push('latest')
-                    }
+                    sh """
+                    docker login -u ${DOCKER_USER} -p ${DOCKER_PASS}
+                    docker push ${DOCKER_IMAGE}:${BUILD_NUMBER}
+                    docker tag ${DOCKER_IMAGE}:${BUILD_NUMBER} ${DOCKER_IMAGE}:latest
+                    docker push ${DOCKER_IMAGE}:latest
+                    docker logout
+                    """
                 }
             }
         }
 
         stage('Deploy to Kubernetes') {
             steps {
-                sh '''
+                sh """
                 kubectl set image deployment/student-app student-app=${DOCKER_IMAGE}:${BUILD_NUMBER} --record
                 kubectl rollout status deployment/student-app
-                '''
+                """
             }
         }
     }
